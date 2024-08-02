@@ -1,30 +1,22 @@
-// Signup.js
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
-import styles from './Signup.module.css'; // Import the CSS module
+import styles from './Signup.module.css'; // Use the module
 
 function Signup() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate();
+  const [confirmPassword, setConfirmPassword] = useState('');
 
-  const handleSignup = async (e) => {
-    e.preventDefault();
-    const auth = getAuth();
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      navigate('/'); // Redirect to the main page after successful signup
-    } catch (error) {
-      console.error(error);
-    }
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    // Implement signup logic here
+    console.log('Signup:', { email, password, confirmPassword });
   };
 
   return (
     <div className={styles.signupContainer}>
       <div className={styles.signupContent}>
         <h2>Kayıt Ol</h2>
-        <form onSubmit={handleSignup}>
+        <form onSubmit={handleSubmit}>
           <div className={styles.inputGroup}>
             <label htmlFor="email">Email</label>
             <input
@@ -33,6 +25,7 @@ function Signup() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              placeholder="Email adresinizi girin"
             />
           </div>
           <div className={styles.inputGroup}>
@@ -43,11 +36,21 @@ function Signup() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              placeholder="Şifrenizi girin"
             />
           </div>
-          <button type="submit" className={styles.primary}>
-            Kaydol
-          </button>
+          <div className={styles.inputGroup}>
+            <label htmlFor="confirmPassword">Şifreyi Onayla</label>
+            <input
+              type="password"
+              id="confirmPassword"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              placeholder="Şifrenizi tekrar girin"
+            />
+          </div>
+          <button type="submit" className={`${styles.btn} ${styles.primary}`}>Kaydol</button>
         </form>
       </div>
     </div>
