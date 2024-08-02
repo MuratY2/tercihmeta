@@ -1,3 +1,5 @@
+/* Signup.module.css */
+
 .signupContainer {
   display: flex;
   justify-content: center;
@@ -56,7 +58,7 @@
   transform: scale(1.02);
 }
 
-.btn.primary {
+.btnPrimary {
   background: linear-gradient(to right, #007bff, #00d4ff);
   box-shadow: 0 6px 12px rgba(0, 123, 255, 0.5);
   padding: 12px 24px;
@@ -70,11 +72,26 @@
   margin-top: 1rem;
 }
 
-.btn.primary:hover {
+.btnPrimary:hover {
   transform: translateY(-3px);
   background: linear-gradient(to right, #0056b3, #009ec3);
 }
 
-.btn.primary:active {
+.btnPrimary:active {
   transform: translateY(1px);
+}
+
+.loginPrompt {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #ffffff;
+}
+
+.loginPrompt a {
+  color: #00d4ff;
+  text-decoration: none;
+}
+
+.loginPrompt a:hover {
+  text-decoration: underline;
 }

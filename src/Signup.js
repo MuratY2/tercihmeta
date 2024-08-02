@@ -1,5 +1,7 @@
+// Signup.js
 import React, { useState } from 'react';
-import styles from './Signup.module.css'; // Use the module
+import { Link } from 'react-router-dom';
+import styles from './Signup.module.css';
 
 function Signup() {
   const [email, setEmail] = useState('');
@@ -50,8 +52,13 @@ function Signup() {
               placeholder="Şifrenizi tekrar girin"
             />
           </div>
-          <button type="submit" className={`${styles.btn} ${styles.primary}`}>Kaydol</button>
+          <button type="submit" className={styles.btnPrimary}>
+            Kaydol
+          </button>
         </form>
+        <p className={styles.loginPrompt}>
+          Zaten hesabın var mı? <Link to="/login">Buradan giriş yap</Link>
+        </p>
       </div>
     </div>
   );
