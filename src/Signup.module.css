@@ -1,0 +1,73 @@
+/* Signup.module.css */
+.signupContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  color: white;
+}
+
+.signupContent {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  padding: 3rem;
+  border-radius: 15px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+  max-width: 450px;
+  width: 100%;
+  text-align: center;
+}
+
+.inputGroup {
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.inputGroup label {
+  display: block;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.inputGroup input {
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  outline: none;
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.inputGroup input:focus {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.02);
+}
+
+.primary {
+  background: linear-gradient(to right, #007bff, #00d4ff);
+  box-shadow: 0 6px 12px rgba(0, 123, 255, 0.5);
+  padding: 12px 24px;
+  border: none;
+  border-radius: 30px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: white;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.primary:hover {
+  transform: translateY(-3px);
+  background: linear-gradient(to right, #0056b3, #009ec3);
+}
+
+.primary:active {
+  transform: translateY(1px);
+}
