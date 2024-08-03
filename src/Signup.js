@@ -1,6 +1,8 @@
 // Signup.js
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from './firebase'; // Ensure this path is correct
 import styles from './Signup.module.css';
 import Header from './Header';
 
@@ -8,11 +10,22 @@ function Signup() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    // Implement signup logic here
-    console.log('Signup:', { email, password, confirmPassword });
+    if (password !== confirmPassword) {
+      setError('Şifreler uyuşmuyor.');
+      return;
+    }
+
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      navigate('/main');
+    } catch (error) {
+      setError(error.message);
+    }
   };
 
   return (
@@ -20,6 +33,7 @@ function Signup() {
       <Header />
       <div className={styles.signupContent}>
         <h2>Kayıt Ol</h2>
+        {error && <p className={styles.error}>{error}</p>}
         <form onSubmit={handleSubmit}>
           <div className={styles.inputGroup}>
             <label htmlFor="email">Email</label>
@@ -54,12 +68,10 @@ function Signup() {
               placeholder="Şifrenizi tekrar girin"
             />
           </div>
-          <button type="submit" className={styles.btnPrimary}>
-            Kaydol
-          </button>
+          <button type="submit" className={styles.btnPrimary}>Kaydol</button>
         </form>
         <p className={styles.loginPrompt}>
-          Zaten hesabın var mı? <Link to="/login">Buradan giriş yap</Link>
+          Zaten hesabınız var mı? <Link to="/login">Buradan giriş yap</Link>
         </p>
       </div>
     </div>
