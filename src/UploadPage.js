@@ -1,7 +1,7 @@
 // UploadPage.js
 import React, { useState } from 'react';
 import { db } from './firebase';
-import { collection, doc, setDoc, writeBatch } from 'firebase/firestore';
+import { collection, doc, writeBatch } from 'firebase/firestore';
 
 function UploadPage() {
   const [file, setFile] = useState(null);
