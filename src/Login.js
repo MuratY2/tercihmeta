@@ -1,6 +1,8 @@
+// Login.js
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import styles from './Login.module.css';
+import styles from './Signup.module.css';
+import Header from './Header'; // Import the Header component
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -13,8 +15,9 @@ function Login() {
   };
 
   return (
-    <div className={styles.loginContainer}>
-      <div className={styles.loginContent}>
+    <div className={styles.signupContainer}>
+      <Header /> {/* Add Header component here */}
+      <div className={styles.signupContent}>
         <h2>Giriş Yap</h2>
         <form onSubmit={handleSubmit}>
           <div className={styles.inputGroup}>
@@ -43,8 +46,8 @@ function Login() {
             Giriş Yap
           </button>
         </form>
-        <p className={styles.signupPrompt}>
-          Hesabın yok mu? <Link to="/signup">Buradan kaydol</Link>
+        <p className={styles.loginPrompt}>
+          Henüz hesabınız yok mu? <Link to="/signup">Buradan kaydol</Link>
         </p>
       </div>
     </div>

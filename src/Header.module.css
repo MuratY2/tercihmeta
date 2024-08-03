@@ -1,0 +1,33 @@
+/* Header.module.css */
+
+.header {
+    position: absolute;
+    top: 10px;
+    left: 20px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .homeLink {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: white;
+    transition: opacity 0.3s ease;
+  }
+  
+  .homeLink:hover {
+    opacity: 0.8;
+  }
+  
+  .logo {
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+  }
+  
+  .title {
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+  

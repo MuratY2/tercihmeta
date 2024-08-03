@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './Signup.module.css';
+import Header from './Header';
 
 function Signup() {
   const [email, setEmail] = useState('');
@@ -16,6 +17,7 @@ function Signup() {
 
   return (
     <div className={styles.signupContainer}>
+      <Header />
       <div className={styles.signupContent}>
         <h2>Kayıt Ol</h2>
         <form onSubmit={handleSubmit}>

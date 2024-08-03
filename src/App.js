@@ -1,15 +1,18 @@
+// App.js
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import './App.css';
 import Login from './Login';
 import Signup from './Signup';
 import Main from './Main'; // Assuming you have a Main component for the main content
+import Header from './Header'; // Import the Header component
 
 function App() {
   const navigate = useNavigate();
 
   return (
     <div className="App">
+      <Header /> {/* Add Header component here */}
       <div className="content">
         <h1>TercihMeta'ya Hoş Geldiniz</h1>
         <p>
