@@ -6,7 +6,7 @@ import Login from './Login';
 import Signup from './Signup';
 import Main from './Main'; // Assuming you have a Main component for the main content
 import Header from './Header'; // Import the Header component
-
+import UploadPage from "./UploadPage"
 function App() {
   const navigate = useNavigate();
 
@@ -42,6 +42,7 @@ function AppRouter() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/main" element={<Main />} /> {/* Main content page */}
+        <Route path="/upload" element={<UploadPage />} />
       </Routes>
     </Router>
   );
