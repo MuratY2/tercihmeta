@@ -33,9 +33,9 @@ function Header() {
             {user ? (
               <>
                 <span className={styles.userEmail}>{user.email}</span>
-                <button className={styles.logoutButton} onClick={handleLogout}>
+                <span className={styles.authLink} onClick={handleLogout}>
                   Çıkış Yap
-                </button>
+                </span>
               </>
             ) : (
               <>

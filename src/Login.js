@@ -1,22 +1,40 @@
-// Login.js
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import styles from './Signup.module.css';
-import Header from './Header'; // Import the Header component
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom'; // Ensure Link is imported
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from './firebase'; // Ensure this import is correctly configured
+import styles from './Signup.module.css'; // Ensure this is the right CSS file
+import Header from './Header'; // Verify Header is importing correctly
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate(); // Hook for redirecting
 
-  const handleSubmit = (event) => {
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(user => {
+      if (user) {
+        navigate('/main'); // Redirect to main page if user is logged in
+      }
+    });
+
+    return unsubscribe; // Cleanup subscription
+  }, [navigate]);
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    // Implement login logic here
-    console.log('Login:', { email, password });
+    setError(''); // Clear previous error on new submission
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      navigate('/main'); // Redirect to main page after successful login
+    } catch (error) {
+      setError(error.message); // Set error message if login fails
+    }
   };
 
   return (
     <div className={styles.signupContainer}>
-      <Header /> {/* Add Header component here */}
+      <Header />
       <div className={styles.signupContent}>
         <h2>Giriş Yap</h2>
         <form onSubmit={handleSubmit}>
@@ -42,6 +60,7 @@ function Login() {
               placeholder="Şifrenizi girin"
             />
           </div>
+          {error && <div style={{ color: 'red', marginTop: '10px', fontSize: '0.9rem' }}>{error}</div>}
           <button type="submit" className={styles.btnPrimary}>
             Giriş Yap
           </button>
