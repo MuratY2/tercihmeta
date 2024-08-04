@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { auth } from './firebase'; // Ensure this path is correct
 import styles from './Header.module.css';
-import logo from './logo.png'; // Adjust the path if necessary
+import logo from './logo1.png'; // Adjust the path if necessary
 
 function Header() {
   const [user, setUser] = useState(null);
