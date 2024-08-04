@@ -1,22 +1,49 @@
-// Main.js
 import React, { useState } from 'react';
 import { db } from './firebase';
 import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import Header from './Header';
-import styles from './MainPage.module.css'; // Import the CSS module
+import styles from './MainPage.module.css';
+
+// List of cities for suggestions
+const cities = [
+  'ANTALYA',
+  'ANKARA',
+  'ALANYA',
+  'ADANA',
+  'AMASYA',
+  // Add more cities as needed
+];
 
 function Main() {
   const [city, setCity] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const handleCityChange = (event) => {
+    const value = event.target.value.toUpperCase();
+    setCity(value);
+
+    // Filter cities based on input
+    if (value.length > 0) {
+      const filteredCities = cities.filter((c) => c.startsWith(value));
+      setSuggestions(filteredCities);
+    } else {
+      setSuggestions([]);
+    }
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setCity(suggestion);
+    setSuggestions([]);
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
     setError('');
-
-    console.log('City:', city);
+    setSuggestions([]); // Hide suggestions when submitting
 
     try {
       const results = await fetchUniversitiesByCity();
@@ -24,7 +51,7 @@ function Main() {
       setResults(results);
     } catch (err) {
       console.error('Error fetching data:', err);
-      setError('Failed to fetch data. Please try again.');
+      setError('Veriler alınamadı. Lütfen tekrar deneyin.');
     } finally {
       setLoading(false);
     }
@@ -50,27 +77,46 @@ function Main() {
   return (
     <div className={styles.mainContainer}>
       <Header />
-      <h2>University Recommendation</h2>
+      <h2>Üniversite Önerisi</h2>
       <div className={styles.formContainer}>
         <form onSubmit={handleSubmit}>
-          <div>
-            <label>City:</label>
-            <input type="text" value={city} onChange={(e) => setCity(e.target.value)} required />
+          <div className={styles.inputGroup}>
+            <label>Şehir:</label>
+            <input
+              type="text"
+              value={city}
+              onChange={handleCityChange}
+              placeholder="Şehir ismi girin"
+              required
+            />
+            {suggestions.length > 0 && (
+              <ul className={styles.suggestionsList}>
+                {suggestions.map((suggestion, index) => (
+                  <li
+                    key={index}
+                    className={styles.suggestionItem}
+                    onClick={() => handleSuggestionClick(suggestion)}
+                  >
+                    {suggestion}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
-          <button type="submit">Get Recommendations</button>
+          <button type="submit">Öneri Al</button>
         </form>
       </div>
 
-      {loading && <p className={styles.loading}>Loading...</p>}
+      {loading && <p className={styles.loading}>Yükleniyor...</p>}
       {error && <p className={styles.error}>{error}</p>}
       <div className={styles.resultsContainer}>
         {results.map((university) => (
           <div className={styles.resultCard} key={university.id}>
             <h3>{university.uniAdi}</h3>
             <p>{university.bolumAdi}</p>
-            <p>City: {university.sehir}</p>
+            <p>Şehir: {university.sehir}</p>
             <p>Burs: {university.burs}</p>
-            <p>Rank: {university.rank2023}</p>
+            <p>Sıralama: {university.rank2023}</p>
           </div>
         ))}
       </div>
