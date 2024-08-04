@@ -90,8 +90,10 @@ const cities = [
 ];
 
 const uniTypes = ['Vakıf', 'Devlet'];
+const collections = ['say', 'ea', 'dil'];
 
 function Main() {
+  const [collectionName, setCollectionName] = useState('say'); // Default collection
   const [city, setCity] = useState('');
   const [uniTur, setUniTur] = useState('');
   const [citySuggestions, setCitySuggestions] = useState([]);
@@ -99,6 +101,10 @@ function Main() {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  const handleCollectionChange = (event) => {
+    setCollectionName(event.target.value);
+  };
 
   const handleCityChange = (event) => {
     const value = event.target.value;
@@ -166,7 +172,7 @@ function Main() {
   };
 
   const fetchUniversitiesByCityAndType = async () => {
-    const universitiesRef = collection(db, 'dil'); // Querying the 'dil' collection
+    const universitiesRef = collection(db, collectionName); // Querying the selected collection
     const q = query(
       universitiesRef,
       where('sehir', '==', city.trim().toUpperCase()),
@@ -189,6 +195,20 @@ function Main() {
       <h2>Üniversite Önerisi</h2>
       <div className={styles.formContainer}>
         <form onSubmit={handleSubmit}>
+          <div className={styles.inputGroup}>
+            <label>Alan Türü:</label>
+            <select
+              value={collectionName}
+              onChange={handleCollectionChange}
+              className={styles.dropdown}
+            >
+              {collections.map((col) => (
+                <option key={col} value={col}>
+                  {col}
+                </option>
+              ))}
+            </select>
+          </div>
           <div className={styles.inputGroup}>
             <label>Şehir:</label>
             <input
