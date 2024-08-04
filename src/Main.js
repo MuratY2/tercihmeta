@@ -4,49 +4,157 @@ import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import Header from './Header';
 import styles from './MainPage.module.css';
 
-// List of cities for suggestions
+// Complete list of cities in Turkey with only the first letter capitalized
 const cities = [
-  'ANTALYA',
-  'ANKARA',
-  'ALANYA',
-  'ADANA',
-  'AMASYA',
-  // Add more cities as needed
+  'Adana',
+  'Adıyaman',
+  'Afyonkarahisar',
+  'Ağrı',
+  'Aksaray',
+  'Amasya',
+  'Ankara',
+  'Antalya',
+  'Ardahan',
+  'Artvin',
+  'Aydın',
+  'Balıkesir',
+  'Bartın',
+  'Batman',
+  'Bayburt',
+  'Bilecik',
+  'Bingöl',
+  'Bitlis',
+  'Bolu',
+  'Burdur',
+  'Bursa',
+  'Çanakkale',
+  'Çankırı',
+  'Çorum',
+  'Denizli',
+  'Diyarbakır',
+  'Düzce',
+  'Edirne',
+  'Elazığ',
+  'Erzincan',
+  'Erzurum',
+  'Eskişehir',
+  'Gaziantep',
+  'Giresun',
+  'Gümüşhane',
+  'Hakkari',
+  'Hatay',
+  'Iğdır',
+  'Isparta',
+  'İstanbul',
+  'İzmir',
+  'Kahramanmaraş',
+  'Karabük',
+  'Karaman',
+  'Kars',
+  'Kastamonu',
+  'Kayseri',
+  'Kilis',
+  'Kırıkkale',
+  'Kırklareli',
+  'Kırşehir',
+  'Kocaeli',
+  'Konya',
+  'Kütahya',
+  'Malatya',
+  'Manisa',
+  'Mardin',
+  'Mersin',
+  'Muğla',
+  'Muş',
+  'Nevşehir',
+  'Niğde',
+  'Ordu',
+  'Osmaniye',
+  'Rize',
+  'Sakarya',
+  'Samsun',
+  'Şanlıurfa',
+  'Siirt',
+  'Sinop',
+  'Sivas',
+  'Şırnak',
+  'Tekirdağ',
+  'Tokat',
+  'Trabzon',
+  'Tunceli',
+  'Uşak',
+  'Van',
+  'Yalova',
+  'Yozgat',
+  'Zonguldak'
 ];
+
+const uniTypes = ['Vakıf', 'Devlet'];
 
 function Main() {
   const [city, setCity] = useState('');
-  const [suggestions, setSuggestions] = useState([]);
+  const [uniTur, setUniTur] = useState('');
+  const [citySuggestions, setCitySuggestions] = useState([]);
+  const [uniTurSuggestions, setUniTurSuggestions] = useState([]);
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleCityChange = (event) => {
-    const value = event.target.value.toUpperCase();
+    const value = event.target.value;
     setCity(value);
 
+    // Convert input to handle Turkish specific lowercase i and uppercase I correctly
+    const formattedValue = value
+      .replace(/i/g, 'İ')
+      .replace(/ı/g, 'I')
+      .replace(/^./, (char) => char.toUpperCase());
+
     // Filter cities based on input
-    if (value.length > 0) {
-      const filteredCities = cities.filter((c) => c.startsWith(value));
-      setSuggestions(filteredCities);
+    if (formattedValue.length > 0) {
+      const filteredCities = cities.filter((c) =>
+        c.startsWith(formattedValue)
+      );
+      setCitySuggestions(filteredCities);
     } else {
-      setSuggestions([]);
+      setCitySuggestions([]);
     }
   };
 
-  const handleSuggestionClick = (suggestion) => {
+  const handleUniTurChange = (event) => {
+    const value = event.target.value;
+    setUniTur(value);
+
+    // Filter university types based on input
+    if (value.length > 0) {
+      const filteredUniTypes = uniTypes.filter((type) =>
+        type.toLowerCase().startsWith(value.toLowerCase())
+      );
+      setUniTurSuggestions(filteredUniTypes);
+    } else {
+      setUniTurSuggestions([]);
+    }
+  };
+
+  const handleCitySuggestionClick = (suggestion) => {
     setCity(suggestion);
-    setSuggestions([]);
+    setCitySuggestions([]);
+  };
+
+  const handleUniTurSuggestionClick = (suggestion) => {
+    setUniTur(suggestion);
+    setUniTurSuggestions([]);
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
     setError('');
-    setSuggestions([]); // Hide suggestions when submitting
+    setCitySuggestions([]);
+    setUniTurSuggestions([]);
 
     try {
-      const results = await fetchUniversitiesByCity();
+      const results = await fetchUniversitiesByCityAndType();
       console.log('Fetched results:', results);
       setResults(results);
     } catch (err) {
@@ -57,11 +165,12 @@ function Main() {
     }
   };
 
-  const fetchUniversitiesByCity = async () => {
+  const fetchUniversitiesByCityAndType = async () => {
     const universitiesRef = collection(db, 'dil'); // Querying the 'dil' collection
     const q = query(
       universitiesRef,
-      where('sehir', '==', city.trim().toUpperCase()), // Ensure city name matches exactly
+      where('sehir', '==', city.trim().toUpperCase()),
+      where('uniTur', '==', uniTur.trim()), // Ensure uniTur matches exactly
       limit(10) // Limit to first 10 results
     );
 
@@ -89,13 +198,36 @@ function Main() {
               placeholder="Şehir ismi girin"
               required
             />
-            {suggestions.length > 0 && (
+            {citySuggestions.length > 0 && (
               <ul className={styles.suggestionsList}>
-                {suggestions.map((suggestion, index) => (
+                {citySuggestions.map((suggestion, index) => (
                   <li
                     key={index}
                     className={styles.suggestionItem}
-                    onClick={() => handleSuggestionClick(suggestion)}
+                    onClick={() => handleCitySuggestionClick(suggestion)}
+                  >
+                    {suggestion}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          <div className={styles.inputGroup}>
+            <label>Üniversite Türü:</label>
+            <input
+              type="text"
+              value={uniTur}
+              onChange={handleUniTurChange}
+              placeholder="Vakıf veya Devlet"
+              required
+            />
+            {uniTurSuggestions.length > 0 && (
+              <ul className={styles.suggestionsList}>
+                {uniTurSuggestions.map((suggestion, index) => (
+                  <li
+                    key={index}
+                    className={styles.suggestionItem}
+                    onClick={() => handleUniTurSuggestionClick(suggestion)}
                   >
                     {suggestion}
                   </li>
