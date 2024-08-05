@@ -6,94 +6,22 @@ import styles from './MainPage.module.css';
 
 // Complete list of cities in Turkey with only the first letter capitalized
 const cities = [
-  'Adana',
-  'Adıyaman',
-  'Afyonkarahisar',
-  'Ağrı',
-  'Aksaray',
-  'Amasya',
-  'Ankara',
-  'Antalya',
-  'Ardahan',
-  'Artvin',
-  'Aydın',
-  'Balıkesir',
-  'Bartın',
-  'Batman',
-  'Bayburt',
-  'Bilecik',
-  'Bingöl',
-  'Bitlis',
-  'Bolu',
-  'Burdur',
-  'Bursa',
-  'Çanakkale',
-  'Çankırı',
-  'Çorum',
-  'Denizli',
-  'Diyarbakır',
-  'Düzce',
-  'Edirne',
-  'Elazığ',
-  'Erzincan',
-  'Erzurum',
-  'Eskişehir',
-  'Gaziantep',
-  'Giresun',
-  'Gümüşhane',
-  'Hakkari',
-  'Hatay',
-  'Iğdır',
-  'Isparta',
-  'İstanbul',
-  'İzmir',
-  'Kahramanmaraş',
-  'Karabük',
-  'Karaman',
-  'Kars',
-  'Kastamonu',
-  'Kayseri',
-  'Kilis',
-  'Kırıkkale',
-  'Kırklareli',
-  'Kırşehir',
-  'Kocaeli',
-  'Konya',
-  'Kütahya',
-  'Malatya',
-  'Manisa',
-  'Mardin',
-  'Mersin',
-  'Muğla',
-  'Muş',
-  'Nevşehir',
-  'Niğde',
-  'Ordu',
-  'Osmaniye',
-  'Rize',
-  'Sakarya',
-  'Samsun',
-  'Şanlıurfa',
-  'Siirt',
-  'Sinop',
-  'Sivas',
-  'Şırnak',
-  'Tekirdağ',
-  'Tokat',
-  'Trabzon',
-  'Tunceli',
-  'Uşak',
-  'Van',
-  'Yalova',
-  'Yozgat',
-  'Zonguldak'
+  'Adana', 'Adıyaman', 'Afyonkarahisar', 'Ağrı', 'Aksaray', 'Amasya', 'Ankara', 'Antalya', 'Ardahan', 'Artvin',
+  'Aydın', 'Balıkesir', 'Bartın', 'Batman', 'Bayburt', 'Bilecik', 'Bingöl', 'Bitlis', 'Bolu', 'Burdur', 'Bursa',
+  'Çanakkale', 'Çankırı', 'Çorum', 'Denizli', 'Diyarbakır', 'Düzce', 'Edirne', 'Elazığ', 'Erzincan', 'Erzurum', 
+  'Eskişehir', 'Gaziantep', 'Giresun', 'Gümüşhane', 'Hakkari', 'Hatay', 'Iğdır', 'Isparta', 'İstanbul', 'İzmir',
+  'Kahramanmaraş', 'Karabük', 'Karaman', 'Kars', 'Kastamonu', 'Kayseri', 'Kilis', 'Kırıkkale', 'Kırklareli', 
+  'Kırşehir', 'Kocaeli', 'Konya', 'Kütahya', 'Malatya', 'Manisa', 'Mardin', 'Mersin', 'Muğla', 'Muş', 'Nevşehir',
+  'Niğde', 'Ordu', 'Osmaniye', 'Rize', 'Sakarya', 'Samsun', 'Şanlıurfa', 'Siirt', 'Sinop', 'Sivas', 'Şırnak',
+  'Tekirdağ', 'Tokat', 'Trabzon', 'Tunceli', 'Uşak', 'Van', 'Yalova', 'Yozgat', 'Zonguldak'
 ];
 
 const uniTypes = ['Vakıf', 'Devlet'];
 const collections = ['say', 'ea', 'dil'];
 
 function Main() {
-  const [collectionName, setCollectionName] = useState('say'); // Default collection
+  const [collectionName, setCollectionName] = useState('');
+  const [collectionSuggestions, setCollectionSuggestions] = useState([]);
   const [city, setCity] = useState('');
   const [uniTur, setUniTur] = useState('');
   const [citySuggestions, setCitySuggestions] = useState([]);
@@ -103,7 +31,18 @@ function Main() {
   const [error, setError] = useState('');
 
   const handleCollectionChange = (event) => {
-    setCollectionName(event.target.value);
+    const value = event.target.value;
+    setCollectionName(value);
+
+    // Filter collections based on input
+    if (value.length > 0) {
+      const filteredCollections = collections.filter((col) =>
+        col.toLowerCase().startsWith(value.toLowerCase())
+      );
+      setCollectionSuggestions(filteredCollections);
+    } else {
+      setCollectionSuggestions([]);
+    }
   };
 
   const handleCityChange = (event) => {
@@ -140,6 +79,11 @@ function Main() {
     } else {
       setUniTurSuggestions([]);
     }
+  };
+
+  const handleCollectionSuggestionClick = (suggestion) => {
+    setCollectionName(suggestion);
+    setCollectionSuggestions([]);
   };
 
   const handleCitySuggestionClick = (suggestion) => {
@@ -197,17 +141,26 @@ function Main() {
         <form onSubmit={handleSubmit}>
           <div className={styles.inputGroup}>
             <label>Alan Türü:</label>
-            <select
+            <input
+              type="text"
               value={collectionName}
               onChange={handleCollectionChange}
-              className={styles.dropdown}
-            >
-              {collections.map((col) => (
-                <option key={col} value={col}>
-                  {col}
-                </option>
-              ))}
-            </select>
+              placeholder="Alan türü girin"
+              required
+            />
+            {collectionSuggestions.length > 0 && (
+              <ul className={styles.suggestionsList}>
+                {collectionSuggestions.map((suggestion, index) => (
+                  <li
+                    key={index}
+                    className={styles.suggestionItem}
+                    onClick={() => handleCollectionSuggestionClick(suggestion)}
+                  >
+                    {suggestion}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
           <div className={styles.inputGroup}>
             <label>Şehir:</label>
@@ -255,7 +208,7 @@ function Main() {
               </ul>
             )}
           </div>
-          <button type="submit">Öneri Al</button>
+          <button type="submit" className={styles.btnPrimary}>Öneri Al</button>
         </form>
       </div>
 
