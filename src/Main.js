@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { db } from './firebase';
 import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import Header from './Header';
@@ -21,6 +21,7 @@ const collections = ['say', 'ea', 'dil'];
 
 function Main() {
   const [collectionName, setCollectionName] = useState('');
+  const [activeDropdown, setActiveDropdown] = useState(null);
   const [collectionSuggestions, setCollectionSuggestions] = useState([]);
   const [city, setCity] = useState('');
   const [uniTur, setUniTur] = useState('');
@@ -30,19 +31,51 @@ function Main() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const collectionRef = useRef();
+  const cityRef = useRef();
+  const uniTurRef = useRef();
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        collectionRef.current && !collectionRef.current.contains(event.target) &&
+        cityRef.current && !cityRef.current.contains(event.target) &&
+        uniTurRef.current && !uniTurRef.current.contains(event.target)
+      ) {
+        setActiveDropdown(null); // Close all dropdowns when clicking outside
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleCollectionFocus = () => {
+    setCollectionSuggestions(collections);
+    setActiveDropdown('collection');
+  };
+
+  const handleCityFocus = () => {
+    setCitySuggestions(cities);
+    setActiveDropdown('city');
+  };
+
+  const handleUniTurFocus = () => {
+    setUniTurSuggestions(uniTypes);
+    setActiveDropdown('uniTur');
+  };
+
   const handleCollectionChange = (event) => {
     const value = event.target.value;
     setCollectionName(value);
 
     // Filter collections based on input
-    if (value.length > 0) {
-      const filteredCollections = collections.filter((col) =>
-        col.toLowerCase().startsWith(value.toLowerCase())
-      );
-      setCollectionSuggestions(filteredCollections);
-    } else {
-      setCollectionSuggestions([]);
-    }
+    const filteredCollections = collections.filter((col) =>
+      col.toLowerCase().startsWith(value.toLowerCase())
+    );
+    setCollectionSuggestions(filteredCollections);
   };
 
   const handleCityChange = (event) => {
@@ -56,14 +89,10 @@ function Main() {
       .replace(/^./, (char) => char.toUpperCase());
 
     // Filter cities based on input
-    if (formattedValue.length > 0) {
-      const filteredCities = cities.filter((c) =>
-        c.startsWith(formattedValue)
-      );
-      setCitySuggestions(filteredCities);
-    } else {
-      setCitySuggestions([]);
-    }
+    const filteredCities = cities.filter((c) =>
+      c.startsWith(formattedValue)
+    );
+    setCitySuggestions(filteredCities);
   };
 
   const handleUniTurChange = (event) => {
@@ -71,29 +100,28 @@ function Main() {
     setUniTur(value);
 
     // Filter university types based on input
-    if (value.length > 0) {
-      const filteredUniTypes = uniTypes.filter((type) =>
-        type.toLowerCase().startsWith(value.toLowerCase())
-      );
-      setUniTurSuggestions(filteredUniTypes);
-    } else {
-      setUniTurSuggestions([]);
-    }
+    const filteredUniTypes = uniTypes.filter((type) =>
+      type.toLowerCase().startsWith(value.toLowerCase())
+    );
+    setUniTurSuggestions(filteredUniTypes);
   };
 
   const handleCollectionSuggestionClick = (suggestion) => {
     setCollectionName(suggestion);
     setCollectionSuggestions([]);
+    setActiveDropdown(null);
   };
 
   const handleCitySuggestionClick = (suggestion) => {
     setCity(suggestion);
     setCitySuggestions([]);
+    setActiveDropdown(null);
   };
 
   const handleUniTurSuggestionClick = (suggestion) => {
     setUniTur(suggestion);
     setUniTurSuggestions([]);
+    setActiveDropdown(null);
   };
 
   const handleSubmit = async (event) => {
@@ -102,6 +130,7 @@ function Main() {
     setError('');
     setCitySuggestions([]);
     setUniTurSuggestions([]);
+    setActiveDropdown(null);
 
     try {
       const results = await fetchUniversitiesByCityAndType();
@@ -139,16 +168,17 @@ function Main() {
       <h2>Üniversite Önerisi</h2>
       <div className={styles.formContainer}>
         <form onSubmit={handleSubmit}>
-          <div className={styles.inputGroup}>
+          <div className={styles.inputGroup} ref={collectionRef}>
             <label>Alan Türü:</label>
             <input
               type="text"
               value={collectionName}
               onChange={handleCollectionChange}
+              onFocus={handleCollectionFocus}
               placeholder="Alan türü girin"
               required
             />
-            {collectionSuggestions.length > 0 && (
+            {activeDropdown === 'collection' && collectionSuggestions.length > 0 && (
               <ul className={styles.suggestionsList}>
                 {collectionSuggestions.map((suggestion, index) => (
                   <li
@@ -162,16 +192,17 @@ function Main() {
               </ul>
             )}
           </div>
-          <div className={styles.inputGroup}>
+          <div className={styles.inputGroup} ref={cityRef}>
             <label>Şehir:</label>
             <input
               type="text"
               value={city}
               onChange={handleCityChange}
+              onFocus={handleCityFocus}
               placeholder="Şehir ismi girin"
               required
             />
-            {citySuggestions.length > 0 && (
+            {activeDropdown === 'city' && citySuggestions.length > 0 && (
               <ul className={styles.suggestionsList}>
                 {citySuggestions.map((suggestion, index) => (
                   <li
@@ -185,16 +216,17 @@ function Main() {
               </ul>
             )}
           </div>
-          <div className={styles.inputGroup}>
+          <div className={styles.inputGroup} ref={uniTurRef}>
             <label>Üniversite Türü:</label>
             <input
               type="text"
               value={uniTur}
               onChange={handleUniTurChange}
+              onFocus={handleUniTurFocus}
               placeholder="Vakıf veya Devlet"
               required
             />
-            {uniTurSuggestions.length > 0 && (
+            {activeDropdown === 'uniTur' && uniTurSuggestions.length > 0 && (
               <ul className={styles.suggestionsList}>
                 {uniTurSuggestions.map((suggestion, index) => (
                   <li
@@ -208,7 +240,7 @@ function Main() {
               </ul>
             )}
           </div>
-          <button type="submit" className={styles.btnPrimary}>Öneri Al</button>
+          <button type="submit">Öneri Al</button>
         </form>
       </div>
 
