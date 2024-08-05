@@ -17,7 +17,13 @@ const cities = [
 ];
 
 const uniTypes = ['Vakıf', 'Devlet'];
-const collections = ['say', 'ea', 'dil'];
+
+// User-friendly labels mapped to backend collection names
+const collectionLabels = {
+  'Sayısal': 'say',
+  'Eşit Ağırlık': 'ea',
+  'Dil': 'dil'
+};
 
 function Main() {
   const [collectionName, setCollectionName] = useState('');
@@ -53,7 +59,7 @@ function Main() {
   }, []);
 
   const handleCollectionFocus = () => {
-    setCollectionSuggestions(collections);
+    setCollectionSuggestions(Object.keys(collectionLabels));
     setActiveDropdown('collection');
   };
 
@@ -72,7 +78,7 @@ function Main() {
     setCollectionName(value);
 
     // Filter collections based on input
-    const filteredCollections = collections.filter((col) =>
+    const filteredCollections = Object.keys(collectionLabels).filter((col) =>
       col.toLowerCase().startsWith(value.toLowerCase())
     );
     setCollectionSuggestions(filteredCollections);
@@ -133,7 +139,7 @@ function Main() {
     setActiveDropdown(null);
 
     try {
-      const results = await fetchUniversitiesByCityAndType();
+      const results = await fetchUniversities();
       console.log('Fetched results:', results);
       setResults(results);
     } catch (err) {
@@ -144,14 +150,21 @@ function Main() {
     }
   };
 
-  const fetchUniversitiesByCityAndType = async () => {
-    const universitiesRef = collection(db, collectionName); // Querying the selected collection
-    const q = query(
-      universitiesRef,
-      where('sehir', '==', city.trim().toUpperCase()),
-      where('uniTur', '==', uniTur.trim()), // Ensure uniTur matches exactly
-      limit(10) // Limit to first 10 results
-    );
+  const fetchUniversities = async () => {
+    const collectionKey = collectionLabels[collectionName];
+    const universitiesRef = collection(db, collectionKey); // Querying the selected collection
+
+    const conditions = [];
+    if (city) {
+      conditions.push(where('sehir', '==', city.trim().toUpperCase()));
+    }
+    if (uniTur) {
+      conditions.push(where('uniTur', '==', uniTur.trim()));
+    }
+
+    const q = conditions.length > 0
+      ? query(universitiesRef, ...conditions, limit(3)) // Add conditions if they exist, limit to first 3
+      : query(universitiesRef, limit(3)); // No conditions, just limit
 
     const querySnapshot = await getDocs(q);
     const results = [];
@@ -200,7 +213,6 @@ function Main() {
               onChange={handleCityChange}
               onFocus={handleCityFocus}
               placeholder="Şehir ismi girin"
-              required
             />
             {activeDropdown === 'city' && citySuggestions.length > 0 && (
               <ul className={styles.suggestionsList}>
@@ -224,7 +236,6 @@ function Main() {
               onChange={handleUniTurChange}
               onFocus={handleUniTurFocus}
               placeholder="Vakıf veya Devlet"
-              required
             />
             {activeDropdown === 'uniTur' && uniTurSuggestions.length > 0 && (
               <ul className={styles.suggestionsList}>
