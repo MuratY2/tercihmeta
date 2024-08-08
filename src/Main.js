@@ -3,6 +3,10 @@ import { db } from './firebase';
 import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import Header from './Header';
 import styles from './MainPage.module.css';
+import universitiesData from './universities.json'; // Import the JSON file
+
+// Access the array inside the JSON
+const universities = universitiesData.universities;
 
 // Complete list of cities in Turkey with only the first letter capitalized
 const cities = [
@@ -22,6 +26,7 @@ const uniTypes = ['Vakıf', 'Devlet'];
 const collectionLabels = {
   'Sayısal': 'say',
   'Eşit Ağırlık': 'ea',
+  'Sözel': 'soz',
   'Dil': 'dil'
 };
 
@@ -31,8 +36,10 @@ function Main() {
   const [collectionSuggestions, setCollectionSuggestions] = useState([]);
   const [city, setCity] = useState('');
   const [uniTur, setUniTur] = useState('');
+  const [university, setUniversity] = useState('');
   const [citySuggestions, setCitySuggestions] = useState([]);
   const [uniTurSuggestions, setUniTurSuggestions] = useState([]);
+  const [universitySuggestions, setUniversitySuggestions] = useState([]);
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -40,13 +47,15 @@ function Main() {
   const collectionRef = useRef();
   const cityRef = useRef();
   const uniTurRef = useRef();
+  const universityRef = useRef();
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
         collectionRef.current && !collectionRef.current.contains(event.target) &&
         cityRef.current && !cityRef.current.contains(event.target) &&
-        uniTurRef.current && !uniTurRef.current.contains(event.target)
+        uniTurRef.current && !uniTurRef.current.contains(event.target) &&
+        universityRef.current && !universityRef.current.contains(event.target)
       ) {
         setActiveDropdown(null); // Close all dropdowns when clicking outside
       }
@@ -71,6 +80,11 @@ function Main() {
   const handleUniTurFocus = () => {
     setUniTurSuggestions(uniTypes);
     setActiveDropdown('uniTur');
+  };
+
+  const handleUniversityFocus = () => {
+    setUniversitySuggestions(universities);
+    setActiveDropdown('university');
   };
 
   const handleCollectionChange = (event) => {
@@ -112,6 +126,17 @@ function Main() {
     setUniTurSuggestions(filteredUniTypes);
   };
 
+  const handleUniversityChange = (event) => {
+    const value = event.target.value;
+    setUniversity(value);
+
+    // Filter universities based on input
+    const filteredUniversities = universities.filter((uni) =>
+      uni.toLowerCase().startsWith(value.toLowerCase())
+    );
+    setUniversitySuggestions(filteredUniversities);
+  };
+
   const handleCollectionSuggestionClick = (suggestion) => {
     setCollectionName(suggestion);
     setCollectionSuggestions([]);
@@ -130,12 +155,19 @@ function Main() {
     setActiveDropdown(null);
   };
 
+  const handleUniversitySuggestionClick = (suggestion) => {
+    setUniversity(suggestion);
+    setUniversitySuggestions([]);
+    setActiveDropdown(null);
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
     setError('');
     setCitySuggestions([]);
     setUniTurSuggestions([]);
+    setUniversitySuggestions([]);
     setActiveDropdown(null);
 
     try {
@@ -160,6 +192,9 @@ function Main() {
     }
     if (uniTur) {
       conditions.push(where('uniTur', '==', uniTur.trim()));
+    }
+    if (university) {
+      conditions.push(where('uniAdi', '==', university.trim().toUpperCase()));
     }
 
     const q = conditions.length > 0
@@ -244,6 +279,29 @@ function Main() {
                     key={index}
                     className={styles.suggestionItem}
                     onClick={() => handleUniTurSuggestionClick(suggestion)}
+                  >
+                    {suggestion}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          <div className={styles.inputGroup} ref={universityRef}>
+            <label>Üniversite:</label>
+            <input
+              type="text"
+              value={university}
+              onChange={handleUniversityChange}
+              onFocus={handleUniversityFocus}
+              placeholder="Üniversite ismi girin"
+            />
+            {activeDropdown === 'university' && universitySuggestions.length > 0 && (
+              <ul className={styles.suggestionsList}>
+                {universitySuggestions.map((suggestion, index) => (
+                  <li
+                    key={index}
+                    className={styles.suggestionItem}
+                    onClick={() => handleUniversitySuggestionClick(suggestion)}
                   >
                     {suggestion}
                   </li>
