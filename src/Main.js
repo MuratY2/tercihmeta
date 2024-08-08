@@ -42,6 +42,7 @@ function Main() {
   const [department, setDepartment] = useState('');
   const [rankMin, setRankMin] = useState(''); // Minimum rank input
   const [rankMax, setRankMax] = useState(''); // Maximum rank input
+  const [resultsLimit, setResultsLimit] = useState(3); // Limit on the number of results
   const [citySuggestions, setCitySuggestions] = useState([]);
   const [uniTurSuggestions, setUniTurSuggestions] = useState([]);
   const [universitySuggestions, setUniversitySuggestions] = useState([]);
@@ -169,6 +170,11 @@ function Main() {
     setRankMax(event.target.value);
   };
 
+  const handleResultsLimitChange = (event) => {
+    const value = parseInt(event.target.value, 10);
+    setResultsLimit(value > 20 ? 20 : value); // Limit to 20 max
+  };
+
   const handleCollectionSuggestionClick = (suggestion) => {
     setCollectionName(suggestion);
     setCollectionSuggestions([]);
@@ -251,7 +257,7 @@ function Main() {
       }
     });
 
-    return results.slice(0, 3); // Return only the first 3 results
+    return results.slice(0, resultsLimit); // Return the specified number of results
   };
 
   return (
@@ -392,6 +398,17 @@ function Main() {
               value={rankMax}
               onChange={handleRankMaxChange}
               placeholder="Max sıralama"
+            />
+          </div>
+          <div className={styles.inputGroup}>
+            <label>Sonuç Sayısı:</label>
+            <input
+              type="number"
+              value={resultsLimit}
+              onChange={handleResultsLimitChange}
+              placeholder="Sonuç sayısı"
+              min={1}
+              max={20}
             />
           </div>
           <button type="submit">Öneri Al</button>
