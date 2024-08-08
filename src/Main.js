@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { db } from './firebase';
-import { collection, query, where, getDocs, limit } from 'firebase/firestore';
+import { collection, query, where, getDocs} from 'firebase/firestore';
 import Header from './Header';
 import styles from './MainPage.module.css';
 import universitiesData from './universities.json'; // Import the JSON file
