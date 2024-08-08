@@ -40,6 +40,8 @@ function Main() {
   const [uniTur, setUniTur] = useState('');
   const [university, setUniversity] = useState('');
   const [department, setDepartment] = useState('');
+  const [rankMin, setRankMin] = useState(''); // Minimum rank input
+  const [rankMax, setRankMax] = useState(''); // Maximum rank input
   const [citySuggestions, setCitySuggestions] = useState([]);
   const [uniTurSuggestions, setUniTurSuggestions] = useState([]);
   const [universitySuggestions, setUniversitySuggestions] = useState([]);
@@ -159,6 +161,14 @@ function Main() {
     setDepartmentSuggestions(filteredDepartments);
   };
 
+  const handleRankMinChange = (event) => {
+    setRankMin(event.target.value);
+  };
+
+  const handleRankMaxChange = (event) => {
+    setRankMax(event.target.value);
+  };
+
   const handleCollectionSuggestionClick = (suggestion) => {
     setCollectionName(suggestion);
     setCollectionSuggestions([]);
@@ -229,17 +239,19 @@ function Main() {
       conditions.push(where('baseBolum', '==', department.trim()));
     }
 
-    const q = conditions.length > 0
-      ? query(universitiesRef, ...conditions, limit(3)) // Add conditions if they exist, limit to first 3
-      : query(universitiesRef, limit(3)); // No conditions, just limit
+    const queryResults = query(universitiesRef, ...conditions);
 
-    const querySnapshot = await getDocs(q);
+    const querySnapshot = await getDocs(queryResults);
     const results = [];
     querySnapshot.forEach((doc) => {
-      results.push({ id: doc.id, ...doc.data() });
+      const data = doc.data();
+      const rank = parseInt(data.rank2023, 10);
+      if ((rankMin === '' || rank >= parseInt(rankMin, 10)) && (rankMax === '' || rank <= parseInt(rankMax, 10))) {
+        results.push({ id: doc.id, ...data });
+      }
     });
 
-    return results;
+    return results.slice(0, 3); // Return only the first 3 results
   };
 
   return (
@@ -363,6 +375,24 @@ function Main() {
                 ))}
               </ul>
             )}
+          </div>
+          <div className={styles.inputGroup}>
+            <label>Minimum Sıralama:</label>
+            <input
+              type="number"
+              value={rankMin}
+              onChange={handleRankMinChange}
+              placeholder="Min sıralama"
+            />
+          </div>
+          <div className={styles.inputGroup}>
+            <label>Maksimum Sıralama:</label>
+            <input
+              type="number"
+              value={rankMax}
+              onChange={handleRankMaxChange}
+              placeholder="Max sıralama"
+            />
           </div>
           <button type="submit">Öneri Al</button>
         </form>
