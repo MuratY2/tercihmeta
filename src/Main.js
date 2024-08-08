@@ -406,6 +406,7 @@ function Main() {
             <h3>{university.uniAdi}</h3>
             <p>{university.bolumAdi}</p>
             <p>Şehir: {university.sehir}</p>
+            <p>Üniversite Türü: {university.uniTur}</p>
             <p>Burs: {university.burs}</p>
             <p>Sıralama: {university.rank2023}</p>
           </div>
