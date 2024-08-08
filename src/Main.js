@@ -4,17 +4,19 @@ import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import Header from './Header';
 import styles from './MainPage.module.css';
 import universitiesData from './universities.json'; // Import the JSON file
+import departmentsData from './departments.json'; // Import departments JSON
 
 // Access the array inside the JSON
 const universities = universitiesData.universities;
+const departments = departmentsData.departments;
 
 // Complete list of cities in Turkey with only the first letter capitalized
 const cities = [
   'Adana', 'Adıyaman', 'Afyonkarahisar', 'Ağrı', 'Aksaray', 'Amasya', 'Ankara', 'Antalya', 'Ardahan', 'Artvin',
   'Aydın', 'Balıkesir', 'Bartın', 'Batman', 'Bayburt', 'Bilecik', 'Bingöl', 'Bitlis', 'Bolu', 'Burdur', 'Bursa',
-  'Çanakkale', 'Çankırı', 'Çorum', 'Denizli', 'Diyarbakır', 'Düzce', 'Edirne', 'Elazığ', 'Erzincan', 'Erzurum', 
+  'Çanakkale', 'Çankırı', 'Çorum', 'Denizli', 'Diyarbakır', 'Düzce', 'Edirne', 'Elazığ', 'Erzincan', 'Erzurum',
   'Eskişehir', 'Gaziantep', 'Giresun', 'Gümüşhane', 'Hakkari', 'Hatay', 'Iğdır', 'Isparta', 'İstanbul', 'İzmir',
-  'Kahramanmaraş', 'Karabük', 'Karaman', 'Kars', 'Kastamonu', 'Kayseri', 'Kilis', 'Kırıkkale', 'Kırklareli', 
+  'Kahramanmaraş', 'Karabük', 'Karaman', 'Kars', 'Kastamonu', 'Kayseri', 'Kilis', 'Kırıkkale', 'Kırklareli',
   'Kırşehir', 'Kocaeli', 'Konya', 'Kütahya', 'Malatya', 'Manisa', 'Mardin', 'Mersin', 'Muğla', 'Muş', 'Nevşehir',
   'Niğde', 'Ordu', 'Osmaniye', 'Rize', 'Sakarya', 'Samsun', 'Şanlıurfa', 'Siirt', 'Sinop', 'Sivas', 'Şırnak',
   'Tekirdağ', 'Tokat', 'Trabzon', 'Tunceli', 'Uşak', 'Van', 'Yalova', 'Yozgat', 'Zonguldak'
@@ -37,9 +39,11 @@ function Main() {
   const [city, setCity] = useState('');
   const [uniTur, setUniTur] = useState('');
   const [university, setUniversity] = useState('');
+  const [department, setDepartment] = useState('');
   const [citySuggestions, setCitySuggestions] = useState([]);
   const [uniTurSuggestions, setUniTurSuggestions] = useState([]);
   const [universitySuggestions, setUniversitySuggestions] = useState([]);
+  const [departmentSuggestions, setDepartmentSuggestions] = useState([]);
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -48,6 +52,7 @@ function Main() {
   const cityRef = useRef();
   const uniTurRef = useRef();
   const universityRef = useRef();
+  const departmentRef = useRef();
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -55,7 +60,8 @@ function Main() {
         collectionRef.current && !collectionRef.current.contains(event.target) &&
         cityRef.current && !cityRef.current.contains(event.target) &&
         uniTurRef.current && !uniTurRef.current.contains(event.target) &&
-        universityRef.current && !universityRef.current.contains(event.target)
+        universityRef.current && !universityRef.current.contains(event.target) &&
+        departmentRef.current && !departmentRef.current.contains(event.target)
       ) {
         setActiveDropdown(null); // Close all dropdowns when clicking outside
       }
@@ -85,6 +91,11 @@ function Main() {
   const handleUniversityFocus = () => {
     setUniversitySuggestions(universities);
     setActiveDropdown('university');
+  };
+
+  const handleDepartmentFocus = () => {
+    setDepartmentSuggestions(departments);
+    setActiveDropdown('department');
   };
 
   const handleCollectionChange = (event) => {
@@ -137,6 +148,17 @@ function Main() {
     setUniversitySuggestions(filteredUniversities);
   };
 
+  const handleDepartmentChange = (event) => {
+    const value = event.target.value;
+    setDepartment(value);
+
+    // Filter departments based on input
+    const filteredDepartments = departments.filter((dept) =>
+      dept.toLowerCase().startsWith(value.toLowerCase())
+    );
+    setDepartmentSuggestions(filteredDepartments);
+  };
+
   const handleCollectionSuggestionClick = (suggestion) => {
     setCollectionName(suggestion);
     setCollectionSuggestions([]);
@@ -161,6 +183,12 @@ function Main() {
     setActiveDropdown(null);
   };
 
+  const handleDepartmentSuggestionClick = (suggestion) => {
+    setDepartment(suggestion);
+    setDepartmentSuggestions([]);
+    setActiveDropdown(null);
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
@@ -168,6 +196,7 @@ function Main() {
     setCitySuggestions([]);
     setUniTurSuggestions([]);
     setUniversitySuggestions([]);
+    setDepartmentSuggestions([]);
     setActiveDropdown(null);
 
     try {
@@ -195,6 +224,9 @@ function Main() {
     }
     if (university) {
       conditions.push(where('uniAdi', '==', university.trim().toUpperCase()));
+    }
+    if (department) {
+      conditions.push(where('baseBolum', '==', department.trim()));
     }
 
     const q = conditions.length > 0
@@ -302,6 +334,29 @@ function Main() {
                     key={index}
                     className={styles.suggestionItem}
                     onClick={() => handleUniversitySuggestionClick(suggestion)}
+                  >
+                    {suggestion}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          <div className={styles.inputGroup} ref={departmentRef}>
+            <label>Bölüm:</label>
+            <input
+              type="text"
+              value={department}
+              onChange={handleDepartmentChange}
+              onFocus={handleDepartmentFocus}
+              placeholder="Bölüm ismi girin"
+            />
+            {activeDropdown === 'department' && departmentSuggestions.length > 0 && (
+              <ul className={styles.suggestionsList}>
+                {departmentSuggestions.map((suggestion, index) => (
+                  <li
+                    key={index}
+                    className={styles.suggestionItem}
+                    onClick={() => handleDepartmentSuggestionClick(suggestion)}
                   >
                     {suggestion}
                   </li>
